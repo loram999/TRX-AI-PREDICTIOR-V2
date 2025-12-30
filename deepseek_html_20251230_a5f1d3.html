@@ -1,0 +1,1141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SecureSphere | Device Identity Verifier</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-blue: #0066FF;
+            --secondary-blue: #0047CC;
+            --dark-blue: #001A33;
+            --light-blue: #E6F0FF;
+            --accent-blue: #3399FF;
+            --success-green: #10B981;
+            --error-red: #EF4444;
+            --warning-yellow: #F59E0B;
+            --tech-gradient: linear-gradient(135deg, #0066FF 0%, #0047CC 100%);
+            --success-gradient: linear-gradient(135deg, #10B981 0%, #34D399 100%);
+            --error-gradient: linear-gradient(135deg, #EF4444 0%, #F87171 100%);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%);
+            min-height: 100vh;
+            color: #F1F5F9;
+        }
+
+        .verifier-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        /* Header */
+        .verifier-header {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+        .verifier-logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .verifier-logo-icon {
+            width: 60px;
+            height: 60px;
+            background: var(--tech-gradient);
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            color: white;
+        }
+
+        .verifier-logo-text h1 {
+            font-size: 32px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #0066FF, #3399FF);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 8px;
+        }
+
+        .verifier-logo-text p {
+            color: #94A3B8;
+            font-size: 16px;
+        }
+
+        /* Main Card */
+        .verification-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 24px;
+            padding: 50px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .card-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 40px;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+            padding-bottom: 20px;
+        }
+
+        .tab {
+            padding: 12px 24px;
+            background: transparent;
+            border: none;
+            color: #94A3B8;
+            font-weight: 600;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .tab.active {
+            background: rgba(0, 102, 255, 0.2);
+            color: white;
+            border: 1px solid rgba(0, 102, 255, 0.3);
+        }
+
+        .tab:hover:not(.active) {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        /* Input Section */
+        .input-section {
+            margin-bottom: 40px;
+        }
+
+        .input-group {
+            position: relative;
+            margin-bottom: 30px;
+        }
+
+        .input-label {
+            display: block;
+            margin-bottom: 12px;
+            font-weight: 600;
+            color: #E2E8F0;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .key-input-container {
+            position: relative;
+        }
+
+        .key-input {
+            width: 100%;
+            padding: 22px 20px;
+            background: rgba(255, 255, 255, 0.07);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            font-family: 'JetBrains Mono', 'Courier New', monospace;
+            font-size: 18px;
+            color: white;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+        }
+
+        .key-input:focus {
+            outline: none;
+            border-color: var(--primary-blue);
+            box-shadow: 0 0 0 4px rgba(0, 102, 255, 0.2);
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .input-actions {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .btn {
+            padding: 16px 32px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 16px;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+        }
+
+        .btn-verify {
+            flex: 1;
+            background: var(--tech-gradient);
+            color: white;
+            box-shadow: 0 8px 20px rgba(0, 102, 255, 0.3);
+        }
+
+        .btn-verify:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 25px rgba(0, 102, 255, 0.4);
+        }
+
+        .btn-verify:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn-scan {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .btn-scan:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        /* Verification Result */
+        .verification-result {
+            display: none;
+            margin-top: 40px;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .result-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+            border: 2px solid transparent;
+        }
+
+        .result-icon {
+            width: 80px;
+            height: 80px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 25px;
+            font-size: 36px;
+        }
+
+        .result-success .result-icon {
+            background: var(--success-gradient);
+            color: white;
+        }
+
+        .result-error .result-icon {
+            background: var(--error-gradient);
+            color: white;
+        }
+
+        .result-warning .result-icon {
+            background: linear-gradient(135deg, #F59E0B 0%, #FBBF24 100%);
+            color: white;
+        }
+
+        .result-card h2 {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 15px;
+        }
+
+        .result-card p {
+            color: #94A3B8;
+            font-size: 16px;
+            margin-bottom: 25px;
+            line-height: 1.6;
+        }
+
+        .result-details {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 25px;
+            text-align: left;
+        }
+
+        .detail-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .detail-item:last-child {
+            border-bottom: none;
+        }
+
+        .detail-label {
+            color: #94A3B8;
+            font-weight: 500;
+        }
+
+        .detail-value {
+            font-family: 'JetBrains Mono', monospace;
+            color: white;
+            font-weight: 600;
+        }
+
+        /* Redirect Overlay */
+        .redirect-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #0F172A;
+            z-index: 1000;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .redirect-content {
+            text-align: center;
+            padding: 40px;
+            max-width: 600px;
+            width: 90%;
+        }
+
+        .redirect-icon {
+            width: 100px;
+            height: 100px;
+            background: var(--success-gradient);
+            border-radius: 25px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 30px;
+            font-size: 48px;
+            color: white;
+        }
+
+        .redirect-content h2 {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: white;
+        }
+
+        .redirect-content p {
+            color: #94A3B8;
+            font-size: 18px;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+
+        .countdown {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--accent-blue);
+            margin: 20px 0;
+        }
+
+        /* Embedded Website */
+        .embedded-site {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1001;
+            background: white;
+        }
+
+        .site-header {
+            background: var(--dark-blue);
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: white;
+        }
+
+        .site-controls {
+            display: flex;
+            gap: 10px;
+        }
+
+        .site-controls button {
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .site-controls button:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .site-frame {
+            width: 100%;
+            height: calc(100% - 60px);
+            border: none;
+        }
+
+        /* Security Scan */
+        .security-scan {
+            display: none;
+            margin-top: 40px;
+        }
+
+        .scan-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .scan-header h3 {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .scan-steps {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 40px;
+            position: relative;
+        }
+
+        .scan-steps::before {
+            content: '';
+            position: absolute;
+            top: 25px;
+            left: 10%;
+            right: 10%;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.1);
+            z-index: 1;
+        }
+
+        .scan-step {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+            flex: 1;
+        }
+
+        .step-icon {
+            width: 50px;
+            height: 50px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 15px;
+            font-size: 20px;
+            color: #94A3B8;
+            transition: all 0.3s ease;
+        }
+
+        .step-icon.active {
+            background: var(--primary-blue);
+            color: white;
+        }
+
+        .step-label {
+            font-size: 14px;
+            color: #94A3B8;
+        }
+
+        /* Footer */
+        .verifier-footer {
+            text-align: center;
+            margin-top: 60px;
+            padding-top: 30px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            color: #64748B;
+            font-size: 14px;
+        }
+
+        .security-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(239, 68, 68, 0.2);
+            color: #FCA5A5;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 600;
+            margin-top: 15px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .verifier-container {
+                padding: 20px;
+            }
+
+            .verification-card {
+                padding: 30px;
+            }
+
+            .card-tabs {
+                flex-direction: column;
+            }
+
+            .input-actions {
+                flex-direction: column;
+            }
+
+            .scan-steps {
+                flex-direction: column;
+                gap: 30px;
+            }
+
+            .scan-steps::before {
+                display: none;
+            }
+
+            .redirect-content {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="verifier-container">
+        <!-- Header -->
+        <header class="verifier-header">
+            <div class="verifier-logo">
+                <div class="verifier-logo-icon">
+                    <i class="fas fa-shield-alt"></i>
+                </div>
+                <div class="verifier-logo-text">
+                    <h1>SecureSphere Verifier</h1>
+                    <p>Device Identity Verification Portal</p>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Card -->
+        <div class="verification-card">
+            <!-- Tabs -->
+            <div class="card-tabs">
+                <button class="tab active" onclick="switchTab('verify')">
+                    <i class="fas fa-key"></i> Key Verification
+                </button>
+                <button class="tab" onclick="switchTab('scan')">
+                    <i class="fas fa-search"></i> Security Scan
+                </button>
+            </div>
+
+            <!-- Verification Tab -->
+            <div id="verifyTab" class="tab-content">
+                <div class="input-section">
+                    <div class="input-group">
+                        <label class="input-label" for="deviceKeyInput">
+                            <i class="fas fa-key"></i> Enter Device Identity
+                        </label>
+                        <div class="key-input-container">
+                            <input type="text" id="deviceKeyInput" class="key-input" 
+                                   placeholder="IDV-XXXXXXXX-XXXX" 
+                                   maxlength="17"
+                                   pattern="IDV-[A-F0-9]{8}-[A-F0-9]{4}">
+                        </div>
+                        <div class="input-actions">
+                            <button class="btn btn-verify" onclick="verifyDeviceIdentity()" id="verifyBtn">
+                                <i class="fas fa-shield-alt"></i> Verify Identity
+                            </button>
+                            <button class="btn btn-scan" onclick="scanQRCode()">
+                                <i class="fas fa-qrcode"></i> Scan QR
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Verification Result -->
+                <div class="verification-result" id="verificationResult">
+                    <!-- Result will be displayed here -->
+                </div>
+            </div>
+
+            <!-- Security Scan Tab -->
+            <div id="scanTab" class="tab-content" style="display: none;">
+                <div class="security-scan">
+                    <div class="scan-header">
+                        <h3>Device Security Scan</h3>
+                        <p>Complete scan to verify device integrity</p>
+                    </div>
+
+                    <div class="scan-steps">
+                        <div class="scan-step">
+                            <div class="step-icon" id="step1Icon">
+                                <i class="fas fa-fingerprint"></i>
+                            </div>
+                            <div class="step-label">Hardware Scan</div>
+                        </div>
+                        <div class="scan-step">
+                            <div class="step-icon" id="step2Icon">
+                                <i class="fas fa-microchip"></i>
+                            </div>
+                            <div class="step-label">Identity Check</div>
+                        </div>
+                        <div class="scan-step">
+                            <div class="step-icon" id="step3Icon">
+                                <i class="fas fa-shield-alt"></i>
+                            </div>
+                            <div class="step-label">Security Audit</div>
+                        </div>
+                    </div>
+
+                    <div class="input-section">
+                        <div class="input-group">
+                            <label class="input-label" for="scanKeyInput">
+                                <i class="fas fa-key"></i> Device Identity for Scan
+                            </label>
+                            <input type="text" id="scanKeyInput" class="key-input" 
+                                   placeholder="Enter identity to scan" 
+                                   maxlength="17">
+                        </div>
+                        <button class="btn btn-verify" onclick="startSecurityScan()" style="width: 100%;">
+                            <i class="fas fa-search"></i> Start Security Scan
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer class="verifier-footer">
+            <p>© 2024 SecureSphere Technologies. Enterprise-grade security.</p>
+            <div class="security-badge">
+                <i class="fas fa-lock"></i> Strict Device Locking Active
+            </div>
+        </footer>
+    </div>
+
+    <!-- Redirect Overlay -->
+    <div class="redirect-overlay" id="redirectOverlay">
+        <div class="redirect-content">
+            <div class="redirect-icon">
+                <i class="fas fa-check"></i>
+            </div>
+            <h2>Access Granted!</h2>
+            <p>Your device identity has been verified successfully.</p>
+            <p>Redirecting to TRX AI Predictor...</p>
+            <div class="countdown" id="countdown">3</div>
+            <p style="font-size: 14px; color: #64748B;">You will be redirected in a few seconds</p>
+        </div>
+    </div>
+
+    <!-- Embedded Website -->
+    <div class="embedded-site" id="embeddedSite">
+        <div class="site-header">
+            <div class="site-title">
+                <i class="fas fa-external-link-alt"></i> TRX AI Predictor V2
+            </div>
+            <div class="site-controls">
+                <button onclick="exitFullscreen()">
+                    <i class="fas fa-times"></i> Exit
+                </button>
+                <button onclick="refreshEmbeddedSite()">
+                    <i class="fas fa-redo"></i> Refresh
+                </button>
+            </div>
+        </div>
+        <iframe src="https://loram999.github.io/TRX-AI-PREDICTIOR-V2/#" class="site-frame" id="siteFrame"></iframe>
+    </div>
+
+    <script>
+        // Get URL parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        const urlKey = urlParams.get('key');
+        
+        // Auto-fill if key is provided in URL
+        if (urlKey) {
+            document.getElementById('deviceKeyInput').value = urlKey;
+        }
+
+        // Switch between tabs
+        function switchTab(tabName) {
+            // Update tabs
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            // Show selected tab
+            document.getElementById('verifyTab').style.display = 'none';
+            document.getElementById('scanTab').style.display = 'none';
+            
+            if (tabName === 'verify') {
+                document.getElementById('verifyTab').style.display = 'block';
+            } else {
+                document.getElementById('scanTab').style.display = 'block';
+            }
+        }
+
+        // Generate current device fingerprint (SAME as generator)
+        function getCurrentDeviceFingerprint() {
+            try {
+                // Collect device information
+                const fingerprint = {
+                    userAgent: navigator.userAgent,
+                    platform: navigator.platform,
+                    languages: navigator.languages ? navigator.languages.join(',') : 'unknown',
+                    screen: `${screen.width}x${screen.height}@${screen.colorDepth}bit`,
+                    timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+                    hardware: navigator.hardwareConcurrency || 'unknown',
+                    memory: navigator.deviceMemory || 'unknown',
+                    vendor: navigator.vendor || 'unknown',
+                    cookies: navigator.cookieEnabled,
+                    doNotTrack: navigator.doNotTrack || 'unspecified',
+                    plugins: navigator.plugins ? navigator.plugins.length : 0,
+                    touchPoints: navigator.maxTouchPoints || 0,
+                    canvasFingerprint: 'enabled',
+                    webglInfo: 'available'
+                };
+
+                // Add canvas fingerprint
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                if (ctx) {
+                    ctx.textBaseline = 'top';
+                    ctx.font = '14px Arial';
+                    ctx.fillStyle = '#f60';
+                    ctx.fillRect(125, 1, 62, 20);
+                    ctx.fillStyle = '#069';
+                    ctx.fillText('SecureSphere', 2, 15);
+                    fingerprint.canvasHash = canvas.toDataURL().substring(22, 40);
+                }
+
+                // Create unique hash from fingerprint
+                const fingerprintString = JSON.stringify(fingerprint);
+                let hash = 5381;
+                
+                for (let i = 0; i < fingerprintString.length; i++) {
+                    hash = (hash * 33) ^ fingerprintString.charCodeAt(i);
+                }
+                
+                // Convert to positive hex and ensure proper length
+                const positiveHash = (hash >>> 0).toString(16).toUpperCase();
+                
+                // Pad with zeros if needed
+                const paddedHash = positiveHash.padStart(12, '0');
+                
+                // Format: IDV-XXXXXXXX-XXXX
+                const deviceId = `IDV-${paddedHash.substring(0, 8)}-${paddedHash.substring(8, 12)}`;
+                
+                return {
+                    id: deviceId,
+                    fingerprint: fingerprint
+                };
+            } catch (error) {
+                console.error("Error generating fingerprint:", error);
+                // Fallback ID
+                const timestamp = Date.now().toString(36).toUpperCase();
+                return {
+                    id: `IDV-FALLBACK-${timestamp.substring(0, 4)}`,
+                    fingerprint: { error: "Fingerprint generation failed" }
+                };
+            }
+        }
+
+        // Verify device identity
+        function verifyDeviceIdentity() {
+            try {
+                const userKey = document.getElementById('deviceKeyInput').value.trim().toUpperCase();
+                const verifyBtn = document.getElementById('verifyBtn');
+                const resultDiv = document.getElementById('verificationResult');
+                
+                // Clear previous result
+                resultDiv.style.display = 'none';
+                resultDiv.innerHTML = '';
+                
+                // Validate input
+                if (!userKey) {
+                    showResult('error', 'Input Required', 'Please enter a device identity to verify.');
+                    return;
+                }
+                
+                if (!userKey.startsWith('IDV-') || userKey.length !== 17) {
+                    showResult('error', 'Invalid Format', 'Device identity must be in format: IDV-XXXXXXXX-XXXX');
+                    return;
+                }
+                
+                // Disable button and show loading
+                verifyBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Verifying...';
+                verifyBtn.disabled = true;
+                
+                // Get current device fingerprint
+                const currentDevice = getCurrentDeviceFingerprint();
+                
+                // Simulate verification delay
+                setTimeout(() => {
+                    // Get stored device data (if any) from localStorage
+                    const storedData = localStorage.getItem('secureSphere_deviceData');
+                    let storedKey = null;
+                    if (storedData) {
+                        try {
+                            storedKey = JSON.parse(storedData).id;
+                        } catch (e) {
+                            console.error("Error parsing stored data:", e);
+                        }
+                    }
+                    
+                    // Update verification count
+                    let verificationCount = parseInt(localStorage.getItem('secureSphere_verificationCount') || '0');
+                    verificationCount++;
+                    localStorage.setItem('secureSphere_verificationCount', verificationCount.toString());
+                    
+                    // Check conditions
+                    if (userKey === currentDevice.id) {
+                        // SUCCESS: Key matches current device
+                        showResult('success', 
+                            '✅ Access Granted', 
+                            'Device identity verified successfully. Redirecting to TRX AI Predictor...',
+                            [
+                                { label: 'Device Status', value: 'Authenticated' },
+                                { label: 'Security Level', value: 'Maximum' },
+                                { label: 'Device Match', value: '100%' },
+                                { label: 'Verification ID', value: 'VER-' + Date.now().toString(16).toUpperCase().substring(0, 8) }
+                            ]);
+                        
+                        // Log successful verification
+                        logVerification(userKey, true);
+                        
+                        // Redirect to Github page after delay
+                        setTimeout(() => {
+                            redirectToGithubSite();
+                        }, 2000);
+                        
+                    } 
+                    else if (storedKey && userKey === storedKey) {
+                        // WARNING: Key matches stored data but not current device
+                        showResult('warning', 
+                            '⚠️ Device Mismatch', 
+                            'This identity belongs to a different device. Access restricted.',
+                            [
+                                { label: 'Device Status', value: 'Mismatch' },
+                                { label: 'Security Action', value: 'Blocked' },
+                                { label: 'Device Match', value: '0%' },
+                                { label: 'Recommendation', value: 'Use original device' }
+                            ]);
+                        
+                        // Log blocked attempt
+                        logVerification(userKey, false);
+                    }
+                    else {
+                        // ERROR: Invalid key
+                        showResult('error', 
+                            '❌ Invalid Identity', 
+                            'This device identity is not registered in our system.',
+                            [
+                                { label: 'Device Status', value: 'Unknown' },
+                                { label: 'Security Action', value: 'Rejected' },
+                                { label: 'System Check', value: 'Failed' },
+                                { label: 'Recommendation', value: 'Generate valid identity' }
+                            ]);
+                        
+                        // Log failed attempt
+                        logVerification(userKey, false);
+                    }
+                    
+                    // Re-enable button
+                    setTimeout(() => {
+                        verifyBtn.innerHTML = '<i class="fas fa-shield-alt"></i> Verify Identity';
+                        verifyBtn.disabled = false;
+                    }, 1000);
+                    
+                }, 1500);
+            } catch (error) {
+                console.error("Verification error:", error);
+                showResult('error', 'System Error', 'An error occurred during verification. Please try again.');
+                document.getElementById('verifyBtn').innerHTML = '<i class="fas fa-shield-alt"></i> Verify Identity';
+                document.getElementById('verifyBtn').disabled = false;
+            }
+        }
+
+        // Redirect to Github site
+        function redirectToGithubSite() {
+            const redirectOverlay = document.getElementById('redirectOverlay');
+            const countdownElement = document.getElementById('countdown');
+            
+            // Show redirect overlay
+            redirectOverlay.style.display = 'flex';
+            
+            let countdown = 3;
+            countdownElement.textContent = countdown;
+            
+            // Countdown animation
+            const countdownInterval = setInterval(() => {
+                countdown--;
+                countdownElement.textContent = countdown;
+                
+                if (countdown <= 0) {
+                    clearInterval(countdownInterval);
+                    showEmbeddedSite();
+                }
+            }, 1000);
+        }
+
+        // Show embedded Github site
+        function showEmbeddedSite() {
+            const redirectOverlay = document.getElementById('redirectOverlay');
+            const embeddedSite = document.getElementById('embeddedSite');
+            
+            // Hide redirect overlay
+            redirectOverlay.style.display = 'none';
+            
+            // Show embedded site
+            embeddedSite.style.display = 'block';
+            
+            // Request fullscreen if supported
+            if (embeddedSite.requestFullscreen) {
+                embeddedSite.requestFullscreen().catch(err => {
+                    console.log("Fullscreen error:", err);
+                });
+            } else if (embeddedSite.webkitRequestFullscreen) {
+                embeddedSite.webkitRequestFullscreen();
+            } else if (embeddedSite.mozRequestFullScreen) {
+                embeddedSite.mozRequestFullScreen();
+            } else if (embeddedSite.msRequestFullscreen) {
+                embeddedSite.msRequestFullscreen();
+            }
+            
+            // Load the Github page
+            const frame = document.getElementById('siteFrame');
+            frame.src = "https://loram999.github.io/TRX-AI-PREDICTIOR-V2/#";
+        }
+
+        // Exit fullscreen
+        function exitFullscreen() {
+            if (document.exitFullscreen) {
+                document.exitFullscreen();
+            } else if (document.webkitExitFullscreen) {
+                document.webkitExitFullscreen();
+            } else if (document.mozCancelFullScreen) {
+                document.mozCancelFullScreen();
+            } else if (document.msExitFullscreen) {
+                document.msExitFullscreen();
+            }
+            
+            // Hide embedded site
+            document.getElementById('embeddedSite').style.display = 'none';
+        }
+
+        // Refresh embedded site
+        function refreshEmbeddedSite() {
+            const frame = document.getElementById('siteFrame');
+            frame.src = frame.src; // Reload iframe
+        }
+
+        // Show verification result
+        function showResult(type, title, message, details = []) {
+            try {
+                const resultDiv = document.getElementById('verificationResult');
+                const icons = {
+                    success: 'fas fa-check-circle',
+                    error: 'fas fa-times-circle',
+                    warning: 'fas fa-exclamation-triangle'
+                };
+                
+                const colors = {
+                    success: 'result-success',
+                    error: 'result-error',
+                    warning: 'result-warning'
+                };
+                
+                let detailsHTML = '';
+                if (details && details.length > 0) {
+                    detailsHTML = `
+                        <div class="result-details">
+                            ${details.map(detail => `
+                                <div class="detail-item">
+                                    <span class="detail-label">${detail.label}:</span>
+                                    <span class="detail-value">${detail.value}</span>
+                                </div>
+                            `).join('')}
+                        </div>
+                    `;
+                }
+                
+                resultDiv.innerHTML = `
+                    <div class="result-card ${colors[type]}">
+                        <div class="result-icon">
+                            <i class="${icons[type]}"></i>
+                        </div>
+                        <h2>${title}</h2>
+                        <p>${message}</p>
+                        ${detailsHTML}
+                    </div>
+                `;
+                
+                resultDiv.style.display = 'block';
+                
+                // Scroll to result
+                resultDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            } catch (error) {
+                console.error("Show result error:", error);
+            }
+        }
+
+        // Log verification attempt
+        function logVerification(key, success) {
+            try {
+                const logEntry = {
+                    timestamp: new Date().toISOString(),
+                    key: key.substring(0, 8) + '...',
+                    success: success,
+                    device: getCurrentDeviceFingerprint().id
+                };
+                
+                let verificationLog = JSON.parse(localStorage.getItem('secureSphere_verificationLog') || '[]');
+                verificationLog.unshift(logEntry);
+                
+                // Keep only last 10 entries
+                if (verificationLog.length > 10) {
+                    verificationLog = verificationLog.slice(0, 10);
+                }
+                
+                localStorage.setItem('secureSphere_verificationLog', JSON.stringify(verificationLog));
+                
+                console.log(`Verification ${success ? 'SUCCESS' : 'FAILED'}:`, logEntry);
+            } catch (error) {
+                console.error("Logging error:", error);
+            }
+        }
+
+        // Security Scan functions
+        function startSecurityScan() {
+            try {
+                const scanKey = document.getElementById('scanKeyInput').value.trim().toUpperCase();
+                
+                if (!scanKey) {
+                    alert('⚠️ Please enter a device identity to scan');
+                    return;
+                }
+                
+                // Reset steps
+                document.querySelectorAll('.step-icon').forEach(icon => {
+                    icon.classList.remove('active');
+                });
+                
+                // Animate through steps
+                const steps = ['step1Icon', 'step2Icon', 'step3Icon'];
+                let currentStep = 0;
+                
+                const scanInterval = setInterval(() => {
+                    if (currentStep < steps.length) {
+                        document.getElementById(steps[currentStep]).classList.add('active');
+                        currentStep++;
+                    } else {
+                        clearInterval(scanInterval);
+                        
+                        // Show scan result
+                        setTimeout(() => {
+                            const currentDevice = getCurrentDeviceFingerprint();
+                            const isMatch = (scanKey === currentDevice.id);
+                            
+                            if (isMatch) {
+                                alert('✅ Security Scan Complete\n\nDevice integrity verified.\nAll security checks passed.');
+                            } else {
+                                alert('⚠️ Security Scan Complete\n\nDevice mismatch detected.\nThis identity does not match the current device.');
+                            }
+                            
+                            // Reset steps
+                            document.querySelectorAll('.step-icon').forEach(icon => {
+                                icon.classList.remove('active');
+                            });
+                        }, 500);
+                    }
+                }, 800);
+            } catch (error) {
+                console.error("Security scan error:", error);
+                alert("Error during security scan. Please try again.");
+            }
+        }
+
+        // QR Code scan simulation
+        function scanQRCode() {
+            alert('📷 QR Scanner Activated\n\nPoint camera at device identity QR code.\n\n(Simulation: Enter identity manually for now)');
+        }
+
+        // Handle fullscreen change
+        document.addEventListener('fullscreenchange', handleFullscreenChange);
+        document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
+        document.addEventListener('mozfullscreenchange', handleFullscreenChange);
+        document.addEventListener('MSFullscreenChange', handleFullscreenChange);
+
+        function handleFullscreenChange() {
+            const isFullscreen = document.fullscreenElement || 
+                                document.webkitFullscreenElement || 
+                                document.mozFullScreenElement || 
+                                document.msFullscreenElement;
+            
+            if (!isFullscreen) {
+                // User exited fullscreen, hide embedded site
+                document.getElementById('embeddedSite').style.display = 'none';
+            }
+        }
+
+        // Initialize
+        window.onload = function() {
+            try {
+                // Focus on input field
+                document.getElementById('deviceKeyInput').focus();
+                
+                // Add enter key support
+                document.getElementById('deviceKeyInput').addEventListener('keyup', function(event) {
+                    if (event.key === 'Enter') {
+                        verifyDeviceIdentity();
+                    }
+                });
+                
+                // Add enter key support for scan input
+                document.getElementById('scanKeyInput').addEventListener('keyup', function(event) {
+                    if (event.key === 'Enter') {
+                        startSecurityScan();
+                    }
+                });
+                
+                // Auto-verify if key is in URL
+                if (urlKey && urlKey.startsWith('IDV-')) {
+                    setTimeout(() => {
+                        verifyDeviceIdentity();
+                    }, 1000);
+                }
+            } catch (error) {
+                console.error("Initialization error:", error);
+            }
+        };
+    </script>
+</body>
+</html>
